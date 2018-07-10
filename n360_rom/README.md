@@ -5,8 +5,10 @@ To run this ROM on the N64 console, you must have a flashcart (everdrive64 for e
 
 
 # Build
-libdragon is required. This can be found at https://github.com/DragonMinded/libdragon
-After libragon and its dependancies have been installed the source file can be compiled with:
+To build this file, libdragon is required. This can be found at https://github.com/DragonMinded/libdragon
+
+After libdragon and its dependancies have been installed, download the MakeFile and ctest_360.c and place them in a folder called ctest_360 within the libdragon directory. The source code can then be built with
+
 ```sh
 sudo npm run tc -- make -c ctest_360
 ```

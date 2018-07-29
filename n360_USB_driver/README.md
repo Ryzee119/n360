@@ -1,4 +1,4 @@
-# n360 USB drive Source
+# n360 USB Driver Source
 
 This is the source code for the USB drive for my n360 PCB (See http://n360-usb.com/). The code communicates with the MAX3421 USB Host Controller IC and is based on the USB Host Shield Library (https://github.com/felis/USB_Host_Shield_2.0)
 

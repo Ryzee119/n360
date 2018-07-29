@@ -109,6 +109,9 @@
   precision. These can be adjusted by modifying RANGE_DIV_STD and RANGE_DIV_ALT defines.
 
   The analog stick deadzone can be adjusted by modifying DEADZONE_LOW and DEADZONE_HIGH defines.
+  
+  There is 4 pads on the PCB which are labelled as USER. These can be used for any purpose. They are set as inputs by default. The silk screen
+  markings on the PCB indicate the corresponding Arduino IO number.
 
 */
 
@@ -212,9 +215,9 @@ void setup() {
 
   //User GPIO is set to input, but can be changed to ouput if you want to use them
   pinMode(USER_GPIO1, INPUT);
-  pinMode(USER_GPIO1, INPUT);
-  pinMode(USER_GPIO1, INPUT);
-  pinMode(USER_GPIO1, INPUT);
+  pinMode(USER_GPIO2, INPUT);
+  pinMode(USER_GPIO3, INPUT);
+  pinMode(USER_GPIO4, INPUT);
 
 
   //N64 reset is active low, make pin high to allow the n64 console to boot.

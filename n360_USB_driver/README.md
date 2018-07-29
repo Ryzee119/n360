@@ -1,6 +1,6 @@
 # n360 USB Driver Source
 
-This is the source code for the USB drive for my n360 PCB (See http://n360-usb.com/). The code communicates with the MAX3421 USB Host Controller IC and is based on the USB Host Shield Library (https://github.com/felis/USB_Host_Shield_2.0)
+This is the source code for the USB driver for my n360 PCB (See http://n360-usb.com/). The code is written for the ATmega328PB and communicates with the MAX3421 USB Host Controller IC and is based on the USB Host Shield Library (https://github.com/felis/USB_Host_Shield_2.0)
 
 The data from the Xbox 360 controllers is then sent to the Nintendo 64 via serial to the Low Level N64 Protocol Microcontroller at high speed for final output to the Nintendo 64 console.
 

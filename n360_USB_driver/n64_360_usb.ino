@@ -24,7 +24,7 @@
   With some C code experience, the information available at https://github.com/felis/USB_Host_Shield_2.0 and the requirements below and my code as an example,
   it should be possible to add support for any number of USB Game Controllers or modify my code to suit your needs.
 
-  The secondary microcontroller on the PCB (The STM32 series chip) handles all the low level controller protocol and responds in real-time to all the various N64 console commands to simulate up to 4 genuine
+  The secondary microcontroller on the PCB (TheOnce c STM32 series chip) handles all the low level controller protocol and responds in real-time to all the various N64 console commands to simulate up to 4 genuine
   N64 controllers with peripherals and has a direct bus connection to the SRAM which simulates a Controller Pak so you don't need to worry about that.
   This is referred to as the 'N64 Protocol Microcontroller' below for clarity.
 
@@ -109,15 +109,13 @@
   precision. These can be adjusted by modifying RANGE_DIV_STD and RANGE_DIV_ALT defines.
 
   The analog stick deadzone can be adjusted by modifying DEADZONE_LOW and DEADZONE_HIGH defines.
-  
-  There is 4 pads on the PCB which are labelled as USER. These can be used for any purpose. They are set as inputs by default. The silk screen
-  markings on the PCB indicate the corresponding Arduino IO number.
 
 */
 
 
 #include <XBOXRECV.h>
 #include <SPI.h>
+#include <math.h> 
 
 //N64 Buttons
 #define N64_A   1UL<<15
@@ -143,7 +141,7 @@
 #define XBX_LS  1UL<<2		//Not used but is sent to the N64 Microcontroller anyway. Some future use maybe.
 #define XBX_RS  1UL<<3		//Not used but is sent to the N64 Microcontroller anyway. Some future use maybe.
 
-#define RANGE_DIV_STD 400	//Standard N64 range, will make +/- 81 points on axis 32768/400~=81. +/- 32768 is the range from the Xbox 360 Controller.
+#define RANGE_DIV_STD 400	//Standard N64 range, will make +/- 82 points on axis 32768/399~=82. +/- 32768 is the range from the Xbox 360 Controller.
 #define RANGE_DIV_ALT 618	//Modified div for improved precision +/-53 pt.
 
 #define SEND_PERIOD 0		    //ms between controller data transfer, want it fairly regulary to minimise input lag. I just set it to zero to send as fast as possible!
@@ -180,6 +178,15 @@ int8_t   tx_buf[40];
 unsigned long start_millis = 0;
 unsigned long reset_timer = 0UL;
 
+static const uint8_t octa_correction[46] = {83,  83,  82,  82,  81,  81,  81, 
+                                           81,  82,  82,  83,  83,  84,  84,  85,  87,  88,  90,  91, 
+                                            92,  93,  92,  91,  90,  89,  88,  88,  87,  85,  85,  84,
+                                             83,  82,  82,  81,  81,  81,  80,  80,  80,  80,  81, 
+                                          82,  82,  83,  83};
+
+                                            
+//static const uint8_t octa_correction[19] = {83, 82, 81, 81, 83, 84, 86, 89, 92, 92, 89, 87, 85, 83, 81, 80, 81, 83, 83};
+
 //This function applies a scaled radial deadzone both at the central position and the outer edge.
 void apply_deadzone(float* pOutX, float* pOutY, float x, float y, float deadZoneLow, float deadZoneHigh) {
   float mag = sqrtf(x * x + y * y);
@@ -215,9 +222,9 @@ void setup() {
 
   //User GPIO is set to input, but can be changed to ouput if you want to use them
   pinMode(USER_GPIO1, INPUT);
-  pinMode(USER_GPIO2, INPUT);
-  pinMode(USER_GPIO3, INPUT);
-  pinMode(USER_GPIO4, INPUT);
+  pinMode(USER_GPIO1, INPUT);
+  pinMode(USER_GPIO1, INPUT);
+  pinMode(USER_GPIO1, INPUT);
 
 
   //N64 reset is active low, make pin high to allow the n64 console to boot.
@@ -307,7 +314,7 @@ void loop() {
         //All the functions that can activate a rumble as part of an else-if chain. This ensures that only 1 rumble activation request occurs per loop.
         //I found there was issues if multiple rumble requests occurs in a loop.
         if (Xbox.getButtonClick(Y, i)) {
-          if (range_div[i] == RANGE_DIV_STD) {
+          if (range_div[i] != RANGE_DIV_ALT) {
             range_div[i] = RANGE_DIV_ALT;
             Xbox.setRumbleOn(0, 255, i);
           } else {
@@ -340,6 +347,15 @@ void loop() {
         apply_deadzone(&x, &y, Xbox.getAnalogHat(LeftHatX, i) / 32768.0, Xbox.getAnalogHat(LeftHatY, i) / 32768.0, DEADZONE_LOW, DEADZONE_HIGH);
         x *= 32768.0;
         y *= 32768.0;
+
+        if(range_div[i] != RANGE_DIV_ALT){
+          //Now that deadzones have been applied, Correct for octagonal shape on an original N64 using a lookup table.
+          int angle = atan2(y,x)*180/3.14159; //Need to know the angle
+          if(angle<0) angle*=-1; //make sure the results is always betweeon 0 and 90deg
+          if(angle>90) angle=90-(angle-90); //make sure the results is always betweeon 0 and 
+          angle/=2; //Lookup table is in 2degree increments
+          range_div[i]=32768/octa_correction[angle]; //Apply corrected magintude
+        }
 
         //Build output buffer
         //tx_buf[0] is set just before the serial transmission outside this for loop.

@@ -17,51 +17,60 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
   **PCB LAYOUT**
-  The microcontroller used to control the USB Host IC (Max3421) is the Atmega328PB. The layout is effectively a clone of a Arduino Pro Mini 3.3V (https://store.arduino.cc/arduino-pro-mini) with some minor differences and
-  the USB Host Mini (https://www.circuitsathome.com/usb-host-shield-hardware-manual/) so it is directly compatible with the Arduino IDE and the USB_Host_Shield_2.0 arduino library.
-  Make sure you select the Arduino Pro Mini 3.3V 8Mhz in the dropdown lists in the arduino IDE.
+  The microcontroller used to control the USB Host IC (Max3421) is the Atmega328PB. The layout is effectively a clone of a Arduino Pro
+  Mini 3.3V (https://store.arduino.cc/arduino-pro-mini) with some minor differences and the USB Host Mini
+  https://www.circuitsathome.com/usb-host-shield-hardware-manual/) so it is directly compatible with the Arduino IDE and the
+  USB_Host_Shield_2.0 arduino library. Make sure you select the Arduino Pro Mini 3.3V 8Mhz in the dropdown lists in the arduino IDE.
 
-  With some C code experience, the information available at https://github.com/felis/USB_Host_Shield_2.0 and the requirements below and my code as an example,
-  it should be possible to add support for any number of USB Game Controllers or modify my code to suit your needs.
+  With some C code experience, the information available at https://github.com/felis/USB_Host_Shield_2.0 and the requirements
+  below and my code as an example, it should be possible to add support for any number of USB Game Controllers or modify my
+  code to suit your needs.
 
-  The secondary microcontroller on the PCB (TheOnce c STM32 series chip) handles all the low level controller protocol and responds in real-time to all the various N64 console commands to simulate up to 4 genuine
-  N64 controllers with peripherals and has a direct bus connection to the SRAM which simulates a Controller Pak so you don't need to worry about that.
+  The secondary microcontroller on the PCB (TheOnce c STM32 series chip) handles all the low level controller protocol and responds
+  in real-time to all the various N64 console commands to simulate up to 4 genuine N64 controllers with peripherals and has a direct bus
+  connection to the SRAM which simulates a Controller Pak so you don't need to worry about that.
   This is referred to as the 'N64 Protocol Microcontroller' below for clarity.
 
 
 
   **SERIAL DATA OUTPUT TO N64 PROTOCOL MICROCONTOLLER**
   All data is sent to the N64 Protocol Microocontroller over a standard UART interface.
-  The output serial tx pin can only output the specific datastring required for the N64 Protocol Microocontroller. Any other data send on the serial port will prevent the communication from working.
-  Ensure that any other data (like debug data) being sent is removed or commented out before final testing.
-  The serial port should use 500kbaud and the data buffer must be exactly 20 bytes long.
-  Provided you send this exact datastream to the N64 Protocol Microcontroller, the finer details of the N64 controller protocol will be handled by that.
+  The output serial tx pin can only output the specific datastring required for the N64 Protocol Microocontroller. Any other data
+  send on the serial port will prevent the communication from working. Ensure that any other data (like debug data) being sent is
+  removed or commented out before final testing. The serial port should use 500kbaud and the data buffer must be exactly 20 bytes long.
+  Provided you send this exact datastream to the N64 Protocol Microcontroller, the finer details of the N64 controller protocol
+  will be handled by that.
 
   The output data buffer must be exactly 20 bytes long regardless of how many controllers are connected and has the following format:
     byte0
   [0xA*(note1), ...
 
-  byte1 (each button has 1 bit in this order note4)        byte2 (each button has 1 bit in this order note4)                byte3 (note3)           byte4 (note3)                     byte5 (note 5)
-  P1_A|P1_B|P1_Z|P1_START|P1_DU|P1_DD|P1_DL|P1_DR,     P1_RESET(note2)|NOTUSED|P1_LB|P1_RB|P1_CU|P1_CD|P1_CL|P1_CR,    X-axis (signed char),    Y-axis (signed char),    LSB is the Xbox Back button bit, ...
+  byte1 (each button has 1 bit in this order note4)        byte2 (each button has 1 bit in this order note4)                
+  P1_A|P1_B|P1_Z|P1_START|P1_DU|P1_DD|P1_DL|P1_DR,     P1_RESET(note2)|NOTUSED|P1_LB|P1_RB|P1_CU|P1_CD|P1_CL|P1_CR,  ...  
 
+  byte3 (note3)               byte4 (note3)                     byte5 (note 5)
+  X-axis (signed char),    Y-axis (signed char),    LSB is the Xbox Back button bit, ...
+  
   byte 06,07,08,09,10 is as per byte 1,2,3,4,5 but for player 2
   byte 11,12,13,14,15 is as per byte 1,2,3,4,5 but for player 3
   byte 16,17,18,19,20 is as per byte 1,2,3,4,5 but for player 4
 
-  Note1: The first byte always starts with 0xA*. The lower 4 bits has a bit set which indicates if that particular controller is conneted.
+  Note1: The first byte always starts with 0xA*. The lower 4 bits has a bit set which indicates if that particular controller is connected.
          Bit 0 is set if player 1 is connected, the bit is cleared if the controller is disconnected or disconnects
          Bit 1 is set if player 2 is connected, the bit is cleared if the controller is disconnected or disconnects
          Bit 2 is set if player 3 is connected, the bit is cleared if the controller is disconnected or disconnects
          Bit 3 is set if player 4 is connected, the bit is cleared if the controller is disconnected or disconnects
 
   Note2: The reset bit is set on a genuine controller when you press LB+RB+START. Otherwise it is just zero.
-		 The N64 console is probably quite happy with this always being zero and the analog stick reset is not really required for a modern analog stick, but included 'just in case'.
+		 The N64 console is probably quite happy with this always being zero and the analog stick reset is not really required for
+		 a modern analog stick, but included 'just in case'.
 
   Note3: On a genuine controller, X-axis fully left ~= -81, X-axis fully right ~= +81, Y-axis fully up ~= +81, Y-axis fully down ~=-81.
 
   Note4: A bit corresponding to a button press is 1 when the button is pressed and 0 when the button is released.
 
-  Note5: This byte is 0x01 when the BACK is pressed on the Xbox 360 controller, 0x00 if it is not pressed. The N64 Protocol Microcontroller looks for several button combos to select which controller peripheral is installed.
+  Note5: This byte is 0x01 when the BACK is pressed on the Xbox 360 controller, 0x00 if it is not pressed. The N64 Protocol
+  Microcontroller looks for several button combos to select which controller peripheral is installed.
 		 These rely on the BACK button. The combos are:
 		 BACK+D-LEFT = No peripheral for that controller
 		 BACK+D-RIGHT = Rumblepak installed for that controller
@@ -70,11 +79,13 @@
 		 The N64 Protocol Microcontroller will send a request to rumble for ~150ms to indicate a successful combo press. See below.
 		 All other inputs will be ignored by the N64 Protocol Microcontroller whilst BACK is being pressed to prevent the button
 		 combos creating inputs into the game you are playing. So make sure the BACK button bit is cleared when not required.
-     All this is hardcoded into the N64 Protocol Microcontroller and cannot be changed. You can just need to set a button to be your 'BACK' in this program.
+     All this is hardcoded into the N64 Protocol Microcontroller and cannot be changed. You can just need to set a button
+     to be your 'BACK' in this program.
 
 
   **RUMBLE INPUTS**
-  The N64 Protocol Microcontroller has an output gpio pin for each controller to indicate if the n64 console has requested a rumble for that specific controller.
+  The N64 Protocol Microcontroller has an output gpio pin for each controller to indicate if the n64 console has requested a
+  rumble for that specific controller.
   This pin is also set on a successful button combo (see Note 5 above).
   The pin is high when the controller should be rumbling, and is low when the controller should not be rumbling.
   The corresponding Arduino input pins for each controller are as follows:
@@ -82,15 +93,17 @@
   #define P2_RUMBLE_PIN 4
   #define P3_RUMBLE_PIN 16
   #define P4_RUMBLE_PIN 17
-  These defines can be included in your program if you wish to add rumble support. The Arduino should then communicate with the USB Host IC to trigger rumbling for the game controller. i.e Xbox.setRumbleOn(255, 255, i);
+  These defines can be included in your program if you wish to add rumble support. The Arduino should then communicate with
+  the USB Host IC to trigger rumbling for the game controller. i.e Xbox.setRumbleOn(255, 255, i);
 
 
 
   **N64 CONSOLE RESET OUTPUT**
   Pin 2 must be set to an INPUT for the N64 console to boot if the reset pin is soldered to the console motherboard.
-  The pad labelled 'R' on the PCB can be soldered to the RESET button on the n64 console to allow the console to be reset remotely (i.e from a button combo). The pad is connected to pin 2.
-  This pin should always be set to an input. The initiate a reset, set the pin to an output then pull this pin LOW for a few hundred millseconds then set to an input again.
-  It is defined in the below program as:
+  The pad labelled 'R' on the PCB can be soldered to the RESET button on the n64 console to allow the console to be reset
+  remotely (i.e from a button combo). The pad is connected to pin 2.
+  This pin should always be set to an input. The initiate a reset, set the pin to an output then pull this pin LOW for a
+  few hundred millseconds then set to an input again. It is defined in the below program as:
   #define N64_RESET_PIN 2
 
 
@@ -104,9 +117,10 @@
 
 
   **SOME OTHER FEATURES**
-  I have added the ability the change the precision of the analog stick. If you Press 'Y' on the Xbox360 controller the maximum span of the analog stick will toggle from
-  +/-81 to approximately +/-53. This allows finer control if required and can help with aiming etc. A 'fine' rumble indicates the finer precision. A 'rough' rumble indicates the default
-  precision. These can be adjusted by modifying RANGE_DIV_STD and RANGE_DIV_ALT defines.
+  I have added the ability the change the precision of the analog stick. If you Press 'Y' on the Xbox360 controller
+  the maximum span of the analog stick will toggle from the range defined in RANGE_DIV_STD to approximately +/-53.
+  This allows finer control if required and can help with aiming etc. A 'fine' rumble indicates the finer precision.
+  A 'rough' rumble indicates the default precision. These can be adjusted by modifying RANGE_DIV_STD and RANGE_DIV_ALT defines.
 
   The analog stick deadzone can be adjusted by modifying DEADZONE_LOW and DEADZONE_HIGH defines.
 
@@ -141,7 +155,7 @@
 #define XBX_LS  1UL<<2		//Not used but is sent to the N64 Microcontroller anyway. Some future use maybe.
 #define XBX_RS  1UL<<3		//Not used but is sent to the N64 Microcontroller anyway. Some future use maybe.
 
-#define RANGE_DIV_STD 400	//Standard N64 range, will make +/- 82 points on axis 32768/399~=82. +/- 32768 is the range from the Xbox 360 Controller.
+#define RANGE_DIV_STD 390	//Standard N64 range, will make +/- 84 points on axis 32768/390~=84. +/- 32768 is the range from the Xbox 360 Controller. Adjust this is you want to change to standard range.
 #define RANGE_DIV_ALT 618	//Modified div for improved precision +/-53 pt.
 
 #define SEND_PERIOD 0		    //ms between controller data transfer, want it fairly regulary to minimise input lag. I just set it to zero to send as fast as possible!
@@ -149,7 +163,7 @@
 #define DEADZONE_HIGH 0.05	//Deadzone for outside edge of analog stick, adjust to your liking.
 
 //Arduino Pin mappings
-#define N64_RESET_PIN 2		//This pin should be an input for normal operation. To reset the N64 console, set the pin to an output and pull low briefly to force the n64 console to reset (The 'R' pad on the PCB must be connected to the n64 motherboard).
+#define N64_RESET_PIN 2		//Set to input for normal operation. To reset the N64 console, set the pin to an output and pull low briefly to force the n64 console to reset (The 'R' pad on the PCB must be connected to the n64 motherboard).
 #define P1_RUMBLE_PIN 3		//This pin should be an input and is high if the N64 Protocol Microcontroller has requested a rumble (i.e from a game). Low is no rumble required.
 #define P2_RUMBLE_PIN 4		//This pin should be an input and is high if the N64 Protocol Microcontroller has requested a rumble (i.e from a game). Low is no rumble required.
 #define P3_RUMBLE_PIN 16	//This pin should be an input and is high if the N64 Protocol Microcontroller has requested a rumble (i.e from a game). Low is no rumble required.
@@ -157,7 +171,8 @@
 #define USB_RESET_PIN 8		//This pin should be an output and should always be high. Pull low briefly to reset the USB Host IC (MAX3421). Should be a done at boot up to ensure everything has a known state.
 
 
-//USER GPIO - Can be used for other purposes - there is 4 solder pads on the PCB for this purpose. Silk screen markings correspond to the Arduino GPIO numbers.
+//USER GPIO - Can be used for other purposes
+//there is 4 solder pads on the PCB for this purpose. Silk screen markings correspond to the Arduino GPIO numbers.
 #define USER_GPIO1 5
 #define USER_GPIO2 6
 #define USER_GPIO3 7
@@ -178,15 +193,18 @@ int8_t   tx_buf[40];
 unsigned long start_millis = 0;
 unsigned long reset_timer = 0UL;
 
-static const uint8_t octa_correction[46] = {83,  83,  82,  82,  81,  81,  81, 
-                                           81,  82,  82,  83,  83,  84,  84,  85,  87,  88,  90,  91, 
-                                            92,  93,  92,  91,  90,  89,  88,  88,  87,  85,  85,  84,
-                                             83,  82,  82,  81,  81,  81,  80,  80,  80,  80,  81, 
-                                          82,  82,  83,  83};
+
+//Array that alters the angular magnitude dependant on the angle the the controller stick is going. This corrects for the
+//octagonal shape of the original Nintendo 64. A 90degree window is covered, each bit in the array covers 2degrees.
+//i.e octa_correction[0] is the magnitude (radius from the zero point) between 0-2degrees from the x-axis.
+#define c 32768/RANGE_DIV_STD/83
+static const uint8_t octa_correction[46] = {83*c,  83*c,  82*c,  82*c,  82*c,  82*c,  82*c, 
+                                            82*c,  82*c,  82*c,  83*c,  83*c,  84*c,  84*c,  85*c,  86*c,  87*c,  88*c,  89*c, 
+                                            90*c,  91*c,  92*c,  93*c,  92*c,  91*c,  90*c,  89*c,  88*c,  87*c,  86*c,  85*c,
+                                            84*c,  83*c,  83*c,  82*c,  82*c,  82*c,  82*c,  82*c,  82*c,  82*c,  82*c, 
+                                            82*c,  83*c,  83*c,  83*c};
 
                                             
-//static const uint8_t octa_correction[19] = {83, 82, 81, 81, 83, 84, 86, 89, 92, 92, 89, 87, 85, 83, 81, 80, 81, 83, 83};
-
 //This function applies a scaled radial deadzone both at the central position and the outer edge.
 void apply_deadzone(float* pOutX, float* pOutY, float x, float y, float deadZoneLow, float deadZoneHigh) {
   float mag = sqrtf(x * x + y * y);
@@ -222,9 +240,9 @@ void setup() {
 
   //User GPIO is set to input, but can be changed to ouput if you want to use them
   pinMode(USER_GPIO1, INPUT);
-  pinMode(USER_GPIO1, INPUT);
-  pinMode(USER_GPIO1, INPUT);
-  pinMode(USER_GPIO1, INPUT);
+  pinMode(USER_GPIO2, INPUT);
+  pinMode(USER_GPIO3, INPUT);
+  pinMode(USER_GPIO4, INPUT);
 
 
   //N64 reset is active low, make pin high to allow the n64 console to boot.
@@ -232,7 +250,7 @@ void setup() {
 
   //Reset the USB Host Controller to ensure it's at a known state for startup. Generally improves reliability.
   digitalWrite(USB_RESET_PIN, LOW);
-  delay(2000);
+  delay(1000);
   digitalWrite(USB_RESET_PIN, HIGH);
 
 
@@ -252,7 +270,10 @@ void loop() {
   if (Xbox.XboxReceiverConnected) {
     for (uint8_t i = 0; i < 4; i++) {
       if (Xbox.Xbox360Connected[i]) {
-        num_controllers |= 1 << i; //The first byte of the datastream has a bit to indicate which controllers are connected. The bit is set here for the corresponding controller.
+        //The first byte of the datastream has a bit to indicate which controllers are connected.
+        //The bit is set here for the corresponding controller.
+        num_controllers |= 1 << i; 
+        
         //Xbox controller button mapping - this can be adjusted to your preference
         if (Xbox.getButtonPress(A, i))     btn_state[i] |= N64_A;
         if (Xbox.getButtonPress(B, i))     btn_state[i] |= N64_B;
@@ -269,14 +290,11 @@ void loop() {
         if (Xbox.getButtonPress(R3, i))    btn_state[i] |= N64_CU | N64_CD | N64_CL | N64_CR; //Press the RS in to activate all C-buttons as the same time. Is there ever a need to press all 4?
 
         //Non-n64 controller buttons.
-        //XBX_BCK is required for most of the button combos to work. Others don't do anything at this stage.
+        //XBX_BCK is required for the button combos to work.
         uint8_t extra_btns = 0x00;
         if (Xbox.getButtonPress(BACK, i))  extra_btns |= XBX_BCK;
-        if (Xbox.getButtonPress(XBOX, i))  extra_btns |= XBX_XBX;
-        if (Xbox.getButtonPress(L3, i))    extra_btns |= XBX_LS;
 
-
-        //Digitise right analog stick for C buttons
+        //Digitise right analog stick for C buttons (17000 is approximately 50% movement on the analog stick) 
         if (Xbox.getAnalogHat(RightHatY, i) < -17000) {
           btn_state[i] |= N64_CD;
         } else if (Xbox.getAnalogHat(RightHatY, i) > 17000) {
@@ -298,7 +316,7 @@ void loop() {
 
         //Outputs a signal to the N64 reset pin to reset the console on LB+RB+A+B+DD+DR combo
         if (btn_state[i]&N64_LB && btn_state[i]&N64_RB && btn_state[i]&N64_A && btn_state[i]&N64_B && btn_state[i]&N64_DD && btn_state[i]&N64_DR) {
-          //Clear reset pin which if wired to the reset button will simulated the reset button being pushed.
+          //Clear reset pin which if wired to the reset button will simulate the reset button being pushed.
           pinMode(N64_RESET_PIN, OUTPUT);
           digitalWrite(N64_RESET_PIN, LOW);
           btn_state[i] &= ~(0x0000 | N64_LB); //Forces these to zero to prevent it registering as a button press to the console.
@@ -311,8 +329,8 @@ void loop() {
         //Press Y to toggle different analog stick range. getButtonClick returns true only once.
         //Small motor will rumble when finer range is on, Big motor for normal range.
         //Uses the millis function to allow rumbling for a short period (~300ms) of time non-blocking.
-        //All the functions that can activate a rumble as part of an else-if chain. This ensures that only 1 rumble activation request occurs per loop.
-        //I found there was issues if multiple rumble requests occurs in a loop.
+        //All the functions that can activate a rumble are part of an else-if chain. This ensures that only 1 rumble activation request occurs per loop.
+        //I found there was issues if multiple rumble requests occured in a loop.
         if (Xbox.getButtonClick(Y, i)) {
           if (range_div[i] != RANGE_DIV_ALT) {
             range_div[i] = RANGE_DIV_ALT;
@@ -339,16 +357,16 @@ void loop() {
 
         //Shutdown controller by pressing BACK AND START button
         if (Xbox.getButtonPress(BACK, i) && Xbox.getButtonPress(START, i)) {
-          Xbox.setLedRaw(0x80, i); //Sending 0x80 to the setLedRaw command happens to end up the same command as the shutdown magic packet.
+          Xbox.setLedRaw(0x80, i); //Sending 0x80 to the setLedRaw command just happens to end up the same command as the shutdown magic packet
         }
 
-        //Get X,Y axis and apply deadzone correction
+        //Get X,Y axis and apply inner and outer deadzone correction
         float x, y;
         apply_deadzone(&x, &y, Xbox.getAnalogHat(LeftHatX, i) / 32768.0, Xbox.getAnalogHat(LeftHatY, i) / 32768.0, DEADZONE_LOW, DEADZONE_HIGH);
         x *= 32768.0;
         y *= 32768.0;
 
-        if(range_div[i] != RANGE_DIV_ALT){
+        if(range_div[i] != RANGE_DIV_ALT){  //Apply only with the fine precision hasnt been enabled.
           //Now that deadzones have been applied, Correct for octagonal shape on an original N64 using a lookup table.
           int angle = atan2(y,x)*180/3.14159; //Need to know the angle
           if(angle<0) angle*=-1; //make sure the results is always betweeon 0 and 90deg

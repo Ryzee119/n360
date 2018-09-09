@@ -5,11 +5,11 @@ This is the source code for the USB driver for my n360 PCB (See http://n360-usb.
 The data from the Xbox 360 controllers is then sent via serial to the Low Level N64 Protocol Microcontroller at high speed for final output to the Nintendo 64 console.
 
 
-| Driver | Description |
-| --- | --- |
-| `n360_usb` | This is the default driver for 4 x Xbox 360 Wireless Controllers with a USB Receiver. This is what is programmed on the n360 PCB from new.|
-| `n360_usb_barebone` | The is a Wireless Xbox 360 Controller Driver with no bells and whistles. Good starting point for development. |
-| `n360_usb_xbone` | Use up to 4x **WIRED** Xbox One Controllers. If using more than one controller you must use an externally powered USB Hub. No LED indications, LB+RB+BACK to enable Goldeneye mode.|
+| Driver | Description | Author |
+| --- | --- | --- |
+| `n360_usb` | This is the default driver for 4 x Xbox 360 Wireless Controllers with a USB Receiver. This is what is programmed on the n360 PCB from new.| Ryzee119 |
+| `n360_usb_barebone` | The is a Wireless Xbox 360 Controller Driver with no bells and whistles. Good starting point for development. | Ryzee119 |
+| `n360_usb_xbone` | Use up to 4x **WIRED** Xbox One Controllers. If using more than one controller you must use an externally powered USB Hub. No LED indications, LB+RB+BACK to enable Goldeneye mode.| Ryzee119 |
 
 
 # Build

@@ -7,7 +7,7 @@ The data from the Xbox 360 controllers is then sent via serial to the Low Level 
 | Driver | Description |
 | --- | --- |
 | `n360_usb` | This is the default driver for 4 x Xbox 360 Wireless Controllers with a USB Receiver |
-| `n360_usb_xbone` | Use up to 4x **WIRED** Xbox One Controllers. If using more than one controller you must use an externally powered USB Hub. No LED inidcations, LB+RB+BACK to enable Goldeneye mode.|
+| `n360_usb_xbone` | Use up to 4x **WIRED** Xbox One Controllers. If using more than one controller you must use an externally powered USB Hub. No LED indications, LB+RB+BACK to enable Goldeneye mode.|
 
 
 # Build

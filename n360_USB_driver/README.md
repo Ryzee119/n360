@@ -42,6 +42,6 @@ You can debug through the "Serial Monitor" within the Arduino IDE. Ensure that t
 
 Comment out `Serial.write((uint8_t *)tx_buf, (int)21);` at the end of the code to stop this. This will ofcourse prevent the N64 Protocol Microcontroller from receiving data, but you can then include `Serial.print` throughout your code to debug the USB Host controller.
 
-Once happy, you will need to comment out all you `Serial.Print' statements and re-add `Serial.write((uint8_t *)tx_buf, (int)21);`
+Once happy, you will need to comment out all your `Serial.Print` statements and re-add `Serial.write((uint8_t *)tx_buf, (int)21);`
 
 

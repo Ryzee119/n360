@@ -19,13 +19,13 @@ Select the Board Type "Arduino Pro or Pro Mini" from the Board selection list, t
 ![alt text](https://i.imgur.com/lJ7mr9g.png)
 
 Download the .ino file from this repository and open it in the Arduino IDE.
-One opened you can compile by clicking the 'tick' in the top left corner in the Arduino IDE to compile.
+Once opened you can compile by clicking the 'tick' in the top left corner in the Arduino IDE to compile.
 ![alt text](https://i.imgur.com/tD5O3KC.png)
 
 # Programming the n360
 Connect a serial programming interface like https://www.sparkfun.com/products/9873 to the 6 pin programming interface on the n360 PCB. Ensure that it can support up to 500kbaud speeds. You may need to solder a 6 pin header on the n360 PCB, alternatively if you just place the programmer into the holes on the PCB it will generally make contact with all the required points anyway. The 'DTR' pin is used to reset the Atmega328PB automatically to accept serial programming so is required.
 
-In the Arduino IDE, goto Tools>Port and ensure you have selected the COM Port corresponding to your serial programmer. Mine happens to be COM5.
+In the Arduino IDE, goto Tools>Port and ensure you have selected the COM Port corresponding to your serial programmer. Mine happens to be COM5.  
 ![alt text](https://i.imgur.com/ppySRhk.png)
 
 The programmer will not supply power to the n360 PCB, so you must power on the Nintendo 64 before programming. After programming you may need to power cycle the Nintendo 64 for the n360 PCB to correctly reset and initialise.
@@ -38,7 +38,7 @@ This will not impact any existing saved games on the Controller Pak.
 
 
 # Debugging
-You can debug through the "Serial Monitor". Ensure that the correct COM Port has been selected and the baud rate should be changed to 500kbaud. You will probably gets lots of unreadable garbage. This is the binary data being sent to the N64 Protocol Microcontroller.
+You can debug through the "Serial Monitor" within the Arduino IDE. Ensure that the correct COM Port has been selected and the baud rate should be changed to 500kbaud. You will probably gets lots of unreadable garbage. This is the binary data being sent to the N64 Protocol Microcontroller. You can actually debug this using an external serial port monitor that can view raw HEX data. I used a program called Termite with the "Hex View" plugin.
 
 Comment out `Serial.write((uint8_t *)tx_buf, (int)21);` at the end of the code to stop this. This will ofcourse prevent the N64 Protocol Microcontroller from receiving data, but you can then include `Serial.print` throughout your code to debug the USB Host controller.
 

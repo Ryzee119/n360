@@ -12,9 +12,9 @@ The standard features include:
 * Does not impact use of the controller port for original controllers
 * A special dual axis mode for use with GoldenEye 007 and Perfect Dark
 
-See http://n360-usb.com/
-See https://imgur.com/a/HVLea3d
-See https://www.etsy.com/au/listing/631010137/n360-add-wireless-xbox360-controller
+See http://n360-usb.com/  
+See https://imgur.com/a/HVLea3d  
+See https://www.etsy.com/au/listing/631010137/n360-add-wireless-xbox360-controller  
 
 ![alt text](http://n360-usb.com/wp-content/uploads/2018/09/etsy1-768x576.jpg)
 

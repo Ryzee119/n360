@@ -30,6 +30,8 @@ In the Arduino IDE, goto Tools>Port and ensure you have selected the COM Port co
 
 The programmer will not supply power to the n360 PCB, so you must power on the Nintendo 64 before programming. After programming you may need to power cycle the Nintendo 64 for the n360 PCB to correctly reset and initialise.
 
+Press the 'Upload' button at the top left of the Arduino IDE to program.
+
 This will not impact any existing saved games on the Controller Pak.
 
 ![alt text](http://n360-usb.com/wp-content/uploads/2018/08/arduino_header.png)

@@ -34,9 +34,9 @@ Press the 'Upload' button at the top left of the Arduino IDE to program.
 
 This will not impact any existing saved games on the Controller Pak.
 
-![alt text](http://n360-usb.com/wp-content/uploads/2018/08/arduino_header.png)
+![alt text](https://i.imgur.com/skfOOHm.png)
 
-![alt text](http://n360-usb.com/wp-content/uploads/2018/09/n3603-768x874.jpg)
+![alt text](https://i.imgur.com/TmrFadt.jpg)
 
 
 # Debugging

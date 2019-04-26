@@ -1,3 +1,4 @@
+
 # n360 USB Driver Source
 
 This is the source code for the USB driver for my n360 PCB (See http://n360-usb.com/). The code is written for the ATmega328PB and communicates with the MAX3421 USB Host Controller IC and is based on the USB Host Shield Library (https://github.com/felis/USB_Host_Shield_2.0)
@@ -7,7 +8,7 @@ The data from the Xbox 360 controllers is then sent via serial to the Low Level 
 
 | Driver | Description | Author |
 | --- | --- | --- |
-| `n360_usb` | This is the default driver for 4 x Xbox 360 Wireless Controllers with a USB Receiver. This is what is programmed on the n360 PCB from new.| Ryzee119 |
+| `n360_usb` | This is the default driver for 4 x Xbox 360 Wireless Controllers with a USB Receiver. This is what is programmed on the n360 PCB from new. It now also supports the [8bitdo wireless adaptor](http://www.8bitdo.com/wireless-usb-adapter/) and its supported controllers (1 player only, no rumble support with the 8bitdo adaptor)| Ryzee119 |
 | `n360_usb_barebone` | This is a Wireless Xbox 360 Controller Driver with no bells and whistles. Good starting point for development. | Ryzee119 |
 | `n360_usb_xbone` | Use up to 4x **WIRED** Xbox One Controllers. If using more than one controller you must use an externally powered USB 2.0 Hub. No LED indications, LB+RB+BACK to enable Goldeneye mode.| Ryzee119 |
 

@@ -3,25 +3,13 @@
 #include <string.h>
 #include <stdint.h>
 #include <libdragon.h>
+#include <controller.h>
+
+#define ACCESSORY_TPAK		4
 
 
 //Prototypes
 void graphics_draw_custom(display_context_t disp, int x, int y, char* symbol);
-
-char *format_type( int accessory )
-{
-	switch( accessory )
-	{
-		case ACCESSORY_RUMBLEPAK:
-			return "(rumble)";
-		case ACCESSORY_MEMPAK:
-			return "(memory)";
-		case ACCESSORY_VRU:
-			return "(vru)   ";
-		default:
-			return "(no pak)";
-	}
-}
 
 int main(void)
 {
@@ -34,6 +22,7 @@ int main(void)
 	uint32_t frame_count=0;
 	
 	uint8_t data[32]; memset(data, 0, 32);
+	uint8_t data1[32]; memset(data, 0, 32);
 	
 	static char up_arrow[5] = {
 		0b00000100,
@@ -78,57 +67,60 @@ int main(void)
 	while(1) 
 	{
 		static display_context_t disp = 0;
+		
 		while(!(disp = display_lock()));	
 		graphics_fill_screen(disp, 0);
 
 		/* To do initialize routines */
 		controller_scan();
-		struct controller_data keys = get_keys_down();
+		//struct controller_data keys = get_keys_down();
 		int controllers = get_controllers_present();
 		static uint16_t address=0x0000;
 		
-		sprintf(render_buffer,"A/B:   start/stop  rumble\n");
+		sprintf(render_buffer,"Z + A/B:   start/stop  rumble\n");
 		graphics_draw_text(disp, 20, 2*8, render_buffer);
-		sprintf(render_buffer,"Z/L+Z: read/write mempak at 0x%.4x\n",address);
+		sprintf(render_buffer,"Z + R/L: R/W mempack at 0x%.4x\n",address);
 		graphics_draw_text(disp, 20, 3*8, render_buffer);	
 		sprintf(render_buffer,"Data: ");
 		graphics_draw_text(disp, 20, 4*8, render_buffer);
 		
 		if(frame_count>5){
+			struct controller_data keys_now = get_keys_pressed();
 			for(int i = 0; i < 4; i++){
-				if(keys.c[i].A){
-					rumble_start(i);
-				}
+				
+				struct SI_condat* k = keys_now.c;
+				if(controllers & 0xF000>>(i*4)){
+					if(k[i].Z && k[i].A){
+						rumble_start(i);
+					}
 
-				if( keys.c[i].B){
-					rumble_stop(i);
+					if(k[i].Z && k[i].B){
+						rumble_stop(i);
+					}
+					
+					if(k[i].Z && k[i].R){
+						press = read_mempak_address(i, address, data);
+					}
+			
+					if(k[i].Z && k[i].L){
+						press = write_mempak_address(i, address, data);
+					}			
+					
+					if(k[i].up){
+						address+=32;
+					}
+					else if(k[i].down){
+						address-=32;
+					}
+					
+					if(k[i].C_up){
+						address+=32*8;
+					}
+					else if(k[i].C_down){
+						address-=32*8;
+					}		
 				}
-				
-				if(keys.c[i].Z){
-					press = read_mempak_address(i, address, data);
-				}
-		
-				if(keys.c[i].L && keys.c[i].Z){
-					press = write_mempak_address(i, address, data);
-				}			
-				
-				if(keys.c[i].up){
-					address+=32;
-					if(address>0x7FFF) address=0x0000;	
-				}
-				else if(keys.c[i].down){
-					address-=32;
-					if(address>0x9FFF) address=0x7FFF;
-				}
-				
-				if(keys.c[i].C_up){
-					address+=32*8;
-					if(address>0x7FFF) address=0x0000;	
-				}
-				else if(keys.c[i].C_down){
-					address-=32*8;
-					if(address>0x9FFF) address=0x7FFF;
-				}			
+	
 			}		
 		}
 			
@@ -148,18 +140,20 @@ int main(void)
 		
 		if(press==0){
 				graphics_set_color(graphics_make_color(0,255,0,255),0x00000000); //Green
-				graphics_draw_text(disp, 40, 7*8, "CRC ok\n");	
+				graphics_draw_text(disp, 20, 7*8, "CRC ok\n");	
 		} else {
 				graphics_set_color(graphics_make_color(255,0,0,255),0x00000000); //Red
-				graphics_draw_text(disp, 40, 7*8, "CRC error\n");	
+				graphics_draw_text(disp, 20, 7*8, "CRC error\n");	
 		}
 		
+		
 		graphics_set_color(graphics_make_color(255,255,255,255),0x00000000); //Return to White
-
 		graphics_draw_custom(disp,210,67,up_arrow);
 		graphics_draw_custom(disp,218,67,down_arrow);
 		graphics_draw_custom(disp,229,66,left_arrow);
 		graphics_draw_custom(disp,234,66,right_arrow);
+		
+
 		
 		graphics_draw_custom(disp,242,67,up_arrow);
 		graphics_draw_custom(disp,250,67,down_arrow);
@@ -180,7 +174,36 @@ int main(void)
 			//Prints what peripheral is installed
 			sprintf(render_buffer,"Cont %.1x\n",i+1);
 			graphics_draw_text(disp, 20,        10*8+(i*8),render_buffer);
-			graphics_draw_text(disp, 20+(7*8), 10*8+(i*8),format_type(identify_accessory(i)));
+			
+			uint8_t accessory=identify_accessory(i);
+				switch( accessory )
+				{
+					case ACCESSORY_RUMBLEPAK:
+						graphics_draw_text(disp, 20+(7*8), 10*8+(i*8),"(rumble)");
+						break;
+					case ACCESSORY_MEMPAK:
+						memset( data1, 0x84, 32 );
+						write_mempak_address( i, 0x8000, data1 ); //Turn on Tpak (if present)
+						//memset( data1, 0x01, 32 );
+						//write_mempak_address( i, 0xB000, data1 ); //Enable Tpak (if present)
+						
+						read_mempak_address(i, 0xB000, data1);
+						if( data1[1] == 0x89 || data1[1] == 0x80 || data1[1] == 0x44 ){
+							graphics_draw_text(disp, 20+(7*8), 10*8+(i*8),"(tpak)  ");
+							break;
+						} else {
+							graphics_draw_text(disp, 20+(7*8), 10*8+(i*8),"(memory)");
+							break;
+						}
+						break;
+					case ACCESSORY_VRU:
+							graphics_draw_text(disp, 20+(7*8), 10*8+(i*8),"(vru)   ");
+							break;
+					default:
+						graphics_draw_text(disp, 20+(7*8), 10*8+(i*8),"(no pak)");
+				}
+
+
 			graphics_set_color(graphics_make_color(255,255,255,255),0x00000000); //Return to White
 			
 			//Print key presses

@@ -1,4 +1,6 @@
 # n360
+**This project has been superseded by my new project. See https://github.com/Ryzee119/usb64.**  
+
 The n360 is a small circuit board which adds a USB port to the Nintendo 64 Console and is connected to the controller ports internally. I call it the n360. The n360 has out of the box support for Xbox 360 Wireless controllers with an Xbox 360 Wireless Receiver.
 
 The USB Host side of the n360 PCB is based on an Arduino Pro Mini and the USB Host Shield Mini, so it can be modified to suit other USB Game Controllers. The Xbox 360 Wireless controller source code is included in this repository as a template. The low level N64 protocol is handled by a separate IC on the PCB so you don't need to worry about that.

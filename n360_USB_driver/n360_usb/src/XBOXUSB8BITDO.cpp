@@ -24,7 +24,7 @@ XBOXUSB8BITDO::XBOXUSB8BITDO(USB *p) :
 pUsb(p), // pointer to USB class instance - mandatory
 bAddress(0), // device address - mandatory
 bPollEnable(false) { // don't start polling before dongle is connected
-        for(uint8_t i = 0; i < XBOX_MAX_ENDPOINTS; i++) {
+        for(uint8_t i = 0; i < XBOXUSB_MAX_ENDPOINTS; i++) {
                 epInfo[i].epAddr = 0;
                 epInfo[i].maxPktSize = (i) ? 0 : 8;
                 epInfo[i].bmSndToggle = 0;

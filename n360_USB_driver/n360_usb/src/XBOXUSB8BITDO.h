@@ -47,7 +47,7 @@
 
 #define XBOX_REPORT_BUFFER_SIZE 14 // Size of the input report buffer
 
-#define XBOX_MAX_ENDPOINTS   3
+#define XBOXUSB_MAX_ENDPOINTS   3
 
 /** This class implements support for a Xbox wired controller via USB. */
 class XBOXUSB8BITDO : public USBDeviceConfig {
@@ -190,7 +190,7 @@ protected:
         /** Device address. */
         uint8_t bAddress;
         /** Endpoint info structure. */
-        EpInfo epInfo[XBOX_MAX_ENDPOINTS];
+        EpInfo epInfo[XBOXUSB_MAX_ENDPOINTS];
 
 private:
         /**
